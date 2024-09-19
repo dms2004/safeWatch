@@ -80,6 +80,7 @@ class _MyWidgetState extends State<Signupscreen> {
     // Insert into the SQLite database
     await SignupDatabaseHelper.instance.insertSignup(signupData);
 
+
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sign Up Successful')),

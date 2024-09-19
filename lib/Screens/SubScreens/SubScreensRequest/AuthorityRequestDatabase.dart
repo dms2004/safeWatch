@@ -20,6 +20,10 @@ class DatabaseHelper {
 
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
+  void printDatabasePath() async {
+    final dbPath = await getDatabasesPath();
+    print('Database path: $dbPath');
+  }
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
@@ -37,9 +41,14 @@ class DatabaseHelper {
     return await db.insert('authority_requests', row);
   }
 
+
   Future close() async {
     final db = await instance.database;
     db.close();
+  }
+  Future<List<Map<String, dynamic>>> getAllRequests() async {
+    final db = await instance.database;
+    return await db.query('authority_requests');
   }
   Future<void> printAllRequests() async {
     final db = await instance.database;
