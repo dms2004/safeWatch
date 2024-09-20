@@ -4,6 +4,7 @@ import 'SignupDatabase.dart';
 import 'SignUpScreen.dart';
 import 'package:crypto/crypto.dart'; // For hashing
 import 'dart:convert'; // For utf8.encode
+import 'AuthorityLogin.dart';
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -215,6 +216,26 @@ class _LoginscreenState extends State<Loginscreen> {
                           'SIGN UP',
                           style: TextStyle(
                             color: Color(0xFFFF7A00),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          // Navigate to Sign Up Page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Authorityloginscreen()),
+                          );
+                        },
+                        child: const Text(
+                          'Login as Administrator',
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
                         ),
                       ),

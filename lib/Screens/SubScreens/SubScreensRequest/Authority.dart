@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AuthorityRequestDatabase.dart'; // Import the SQLite helper class
 import 'package:intl/intl.dart'; // Import for date formatting
-import 'AuthorityRequestList.dart';
 
 class Authority extends StatefulWidget {
   const Authority({super.key});
@@ -108,24 +107,6 @@ class _MyAuthorityState extends State<Authority> {
                   ),
                 ),
                 child: const Text('SUBMIT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthorityRequestsScreen()),
-                  );
-
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF7A00), // Submit button color
-                  minimumSize: const Size(double.infinity, 64), // Button size
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('GOTO', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
               ),
             ],
           ),
