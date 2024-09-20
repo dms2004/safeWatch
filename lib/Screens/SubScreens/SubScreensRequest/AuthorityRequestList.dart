@@ -29,23 +29,26 @@ class AuthorityRequestsScreen extends StatelessWidget {
 
             return SingleChildScrollView(
               scrollDirection: Axis.vertical,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Authority')),
-                  DataColumn(label: Text('Incident Date')),
-                  DataColumn(label: Text('Details')),
-                ],
-                rows: requests.map((request) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(request['id'].toString())),
-                      DataCell(Text(request['authority'])),
-                      DataCell(Text(request['incident_date'])),
-                      DataCell(Text(request['details'])),
-                    ],
-                  );
-                }).toList(),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('ID')),
+                    DataColumn(label: Text('Authority')),
+                    DataColumn(label: Text('Incident Date')),
+                    DataColumn(label: Text('Details')),
+                  ],
+                  rows: requests.map((request) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(request['id'].toString())),
+                        DataCell(Text(request['authority'])),
+                        DataCell(Text(request['incident_date'])),
+                        DataCell(Text(request['details'])),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             );
           }
