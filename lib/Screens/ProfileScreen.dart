@@ -28,35 +28,49 @@ class _MyProfileScreenState extends State<ProfileScreen> {
     _loadUserData();
   }
 
-  Future<void> _loadUserData() async {
-    try {
-      final dbHelper = SignupDatabaseHelper.instance;
-      final List<Map<String, dynamic>> users = await dbHelper.queryUserByEmail(globalEmail);
+Future<void> _loadUserData() async {
+  try {
+    final dbHelper = SignupDatabaseHelper.instance;
+    final List<Map<String, dynamic>> users = await dbHelper.queryUserByEmail(globalEmail);
 
-      if (users.isNotEmpty) {
-        setState(() {
-          fullName = users.first['name'];
-          email = users.first['email'];
-          username = fullName.split(' ').first; // Extract first word as username
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          fullName = 'No user found';
-          email = 'No user found';
-          username = 'No user found';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
+    if (users.isNotEmpty) {
       setState(() {
-        fullName = 'Error loading data';
-        email = 'Error loading data';
-        username = 'Error loading data';
+        fullName = users.first['name'];
+        email = users.first['email'];
+        username = fullName.split(' ').first; // Extract first word as username
+        isLoading = false;
+      });
+
+      // Load additional profile data (phone number and address)
+      final List<Map<String, dynamic>> profile = await _profileDBHelper.queryProfileByEmail(globalEmail);
+      if (profile.isNotEmpty) {
+        setState(() {
+          phoneNumber = profile.first['phonenumber'];
+          address = profile.first['address'];
+        });
+      } 
+    } else {
+      setState(() {
+        fullName = 'No user found';
+        email = 'No user found';
+        username = 'No user found';
+        phoneNumber = 'No data'; // Set default or error value for phone number
+        address = 'No data';     // Set default or error value for address
         isLoading = false;
       });
     }
+  } catch (e) {
+    setState(() {
+      fullName = 'Error loading data';
+      email = 'Error loading data';
+      username = 'Error loading data';
+      phoneNumber = 'Error loading data';
+      address = 'Error loading data';
+      isLoading = false;
+    });
   }
+}
+
 
   void _toggleEdit() {
     setState(() {
@@ -83,7 +97,7 @@ class _MyProfileScreenState extends State<ProfileScreen> {
 
       // Optionally, you can display a confirmation message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile saved successfully!')),
+        const SnackBar(content: Text('Profile saved successfully!')),
       );
       await ProfileDatabaseHelper.instance.printAllprofile();
     } 
@@ -189,7 +203,7 @@ class _MyProfileScreenState extends State<ProfileScreen> {
                     const Divider(),
                     Row(
                       children: [
-                        Icon(Icons.phone, color: Colors.orange, size: 24),
+                        const Icon(Icons.phone, color: Colors.orange, size: 24),
                         const SizedBox(width: 16),
                         Expanded(
                           child: isEditing
@@ -212,7 +226,7 @@ class _MyProfileScreenState extends State<ProfileScreen> {
                     const Divider(),
                     Row(
                       children: [
-                        Icon(Icons.location_on, color: Colors.orange, size: 24),
+                        const Icon(Icons.location_on, color: Colors.orange, size: 24),
                         const SizedBox(width: 16),
                         Expanded(
                           child: isEditing

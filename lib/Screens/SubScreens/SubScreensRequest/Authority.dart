@@ -95,7 +95,7 @@ class _MyAuthorityState extends State<Authority> {
               const SizedBox(height: 16),
               _buildDateField('DATE OF INCIDENT', controller: _incidentDateController), // Use date picker field
               const SizedBox(height: 16),
-              _buildTextField('DETAILS OF REQUEST', '', controller: _detailsController, maxLines: 3, fontSize: 14, fontWeight: FontWeight.w400),
+              _buildTextField('DETAILS OF REQUEST', '', controller: _detailsController, maxLines: 3, fontSize: 16, fontWeight: FontWeight.w400),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _submitForm,
@@ -123,7 +123,7 @@ class _MyAuthorityState extends State<Authority> {
           'AUTHORITY',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -192,7 +192,7 @@ class _MyAuthorityState extends State<Authority> {
           label,
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
         ),

@@ -44,7 +44,7 @@ class ProfileDatabaseHelper {
   }
 
   // Query user by email for login verification
-  Future<List<Map<String, dynamic>>> queryUserByEmail(String email) async {
+  Future<List<Map<String, dynamic>>> queryProfileByEmail(String email) async {
     final db = await instance.database;
     return await db.query(
       'profile_data',
