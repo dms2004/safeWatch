@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_watch/globals.dart';
 import 'HomeScreen.dart';
 import 'SignupDatabase.dart';
 import 'SignUpScreen.dart';
@@ -47,7 +48,7 @@ class _LoginscreenState extends State<Loginscreen> {
 
   // Hash the entered password
   final String hashedPassword = hashPassword(password);
-  print('Hashed Password (Login): $hashedPassword');
+  //print('Hashed Password (Login): $hashedPassword');
 
   // Fetch user data from the database based on email
   final db = SignupDatabaseHelper.instance;
@@ -62,9 +63,10 @@ class _LoginscreenState extends State<Loginscreen> {
 
   // Check if the hashed password matches the stored password
   final String storedPassword = result.first['password'];
-  print('Stored Password (Database): $storedPassword');
+  //print('Stored Password (Database): $storedPassword');
 
   if (storedPassword == hashedPassword) {
+    globalEmail=email;
     // Credentials are correct, navigate to HomeScreen
     Navigator.pushReplacement(
       context,

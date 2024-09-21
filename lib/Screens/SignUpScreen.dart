@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:safe_watch/Screens/LogInScreen.dart';
 import 'SignupDatabase.dart'; // Import the SQLite helper class
-import 'HomeScreen.dart'; // Import the Homescreen widget
+//import 'HomeScreen.dart'; // Import the Homescreen widget
 import 'package:crypto/crypto.dart'; // For hashing
 import 'dart:convert'; // For utf8.encode and base64.encode
 
@@ -67,12 +68,12 @@ class _MyWidgetState extends State<Signupscreen> {
     }
 
     // Encrypt the name and password
-    String encryptedName = hashPassword(name);
+    //String encryptedName = hashPassword(name);
     String encryptedPassword = hashPassword(password);
 
     // Prepare signup data
     Map<String, dynamic> signupData = {
-      'name': encryptedName,
+      'name': name,
       'email': email,
       'password': encryptedPassword,
     };
@@ -83,7 +84,7 @@ class _MyWidgetState extends State<Signupscreen> {
 
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sign Up Successful')),
+      const SnackBar(content: Text('Sign Up Successful!! Please Login with your credentials')),
     );
 
     // Clear form fields
@@ -99,7 +100,7 @@ class _MyWidgetState extends State<Signupscreen> {
     // Navigate to the HomeScreen after sign-up
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (context) => const Loginscreen()),
     );
   }
 

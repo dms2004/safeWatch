@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_watch/Screens/HomeScreen.dart';
 import 'SubScreens/Request.dart'; // Import the Request screen
+import 'SubScreens/AllRequests.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -75,7 +76,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
         child: TabBarView(
           controller: _tabController,
           children: const [
-            Center(child: Text('All Requests')), // Content for the first tab ("All")
+            AllRequests(), // Content for the first tab ("All")
             Requests(), // Navigates to the Request screen for the second tab ("Requests")
           ],
         ),
