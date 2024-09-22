@@ -1,16 +1,16 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class DatabaseHelper {
-  static final DatabaseHelper instance = DatabaseHelper._init();
+class EmergencyDatabaseHelper {
+  static final EmergencyDatabaseHelper instance = EmergencyDatabaseHelper._init();
   static Database? _database;
 
-  DatabaseHelper._init();
+  EmergencyDatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
 
-    _database = await _initDB('authority_requests.db');
+    _database = await _initDB('emergency_requests.db');
     return _database!;
   }
 
@@ -25,24 +25,25 @@ class DatabaseHelper {
     print('Database path: $dbPath');
   }
 
-  Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE authority_requests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        authority TEXT NOT NULL,
-        incident_date TEXT NOT NULL,
-        details TEXT NOT NULL,
-        phonenumber TEXT NOT NULL,
-        address TEXT NOT NULL
-      )
-    ''');
-  }
+Future _createDB(Database db, int version) async {
+  await db.execute('''
+    CREATE TABLE emergency_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      phonenumber TEXT NOT NULL,
+      address TEXT NOT NULL,
+      currentlocation TEXT NOT NULL,
+      date TEXT NOT NULL,
+      time TEXT NOT NULL,
+      details TEXT NOT NULL
+    )
+  '''); // Add the closing parenthesis here
+}
+
 
   Future<int> insertRequest(Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.insert('authority_requests', row);
+    return await db.insert('emergency_requests', row);
   }
 
 
@@ -52,22 +53,22 @@ class DatabaseHelper {
   }
   Future<List<Map<String, dynamic>>> getAllRequests() async {
     final db = await instance.database;
-    return await db.query('authority_requests');
+    return await db.query('emergency_requests');
   }
   Future<void> printAllRequests() async {
     final db = await instance.database;
-    final List<Map<String, dynamic>> requests = await db.query('authority_requests');
+    final List<Map<String, dynamic>> requests = await db.query('emergency_requests');
     
     if (requests.isNotEmpty) {
       for (var request in requests) {
         print('Request ID: ${request['id']}');
         print('Name: ${request['name']}');
-        print('Email: ${request['email']}');
-        print('Authority: ${request['authority']}');
-        print('Date of Incident: ${request['incident_date']}');
-        print('Details: ${request['details']}');
         print('Phone Number: ${request['phonenumber']}');
         print('Address: ${request['address']}');
+        print('Current Location: ${request['currentlocation']}');
+        print('Date: ${request['date']}');
+        print('Time: ${request['time']}');
+        print('Details: ${request['details']}');
         print('------------------------------');
       }
     } else {

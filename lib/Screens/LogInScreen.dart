@@ -41,7 +41,7 @@ class _LoginscreenState extends State<Loginscreen> {
 
   if (email.isEmpty || password.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please fill out all fields')),
+      const SnackBar(content: Text('Please enter your credentials to login')),
     );
     return;
   }

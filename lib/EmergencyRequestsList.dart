@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'AuthorityRequestDatabase.dart'; // Import the SQLite helper class
+import 'Screens/EmergencyDatabase.dart'; // Import the Emergency Database helper class
 
-class AuthorityRequestsScreen extends StatelessWidget {
-  const AuthorityRequestsScreen({super.key});
+class EmergencyRequestList extends StatelessWidget {
+  const EmergencyRequestList({super.key});
 
-  Future<List<Map<String, dynamic>>> _fetchRequests() async {
-    final requests = await DatabaseHelper.instance.getAllRequests();
+  Future<List<Map<String, dynamic>>> _fetchEmergencyRequests() async {
+    final requests = await EmergencyDatabaseHelper.instance.getAllRequests();
     return requests;
   }
 
@@ -13,14 +13,14 @@ class AuthorityRequestsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _fetchRequests(),
+        future: _fetchEmergencyRequests(),
         builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No requests found.'));
+            return const Center(child: Text('No emergency requests found.'));
           } else {
             final requests = snapshot.data!;
 
@@ -32,24 +32,24 @@ class AuthorityRequestsScreen extends StatelessWidget {
                   columns: const [
                     DataColumn(label: Text('ID')),
                     DataColumn(label: Text('Name')),
-                    DataColumn(label: Text('Email')),
                     DataColumn(label: Text('Phone Number')),
                     DataColumn(label: Text('Address')),
-                    DataColumn(label: Text('Authority')),
-                    DataColumn(label: Text('Incident Date')),
+                    DataColumn(label: Text('Current Location')),
+                    DataColumn(label: Text('Date')),
+                    DataColumn(label: Text('Time')),
                     DataColumn(label: Text('Details')),
                   ],
                   rows: requests.map((request) {
                     return DataRow(
                       cells: [
                         DataCell(Text(request['id'].toString())),
-                        DataCell(Text(request['name'] ?? 'N/A')),            // Name field
-                        DataCell(Text(request['email'] ?? 'N/A')),           // Email field
-                        DataCell(Text(request['phonenumber'] ?? 'N/A')),     // Phone Number field
-                        DataCell(Text(request['address'] ?? 'N/A')),         // Address field
-                        DataCell(Text(request['authority'])),                // Authority field
-                        DataCell(Text(request['incident_date'])),            // Incident Date field
-                        DataCell(Text(request['details'])),                  // Details field
+                        DataCell(Text(request['name'] ?? 'N/A')),
+                        DataCell(Text(request['phonenumber'] ?? 'N/A')),
+                        DataCell(Text(request['address'] ?? 'N/A')),
+                        DataCell(Text(request['currentlocation'] ?? 'N/A')),
+                        DataCell(Text(request['date'] ?? 'N/A')),
+                        DataCell(Text(request['time'] ?? 'N/A')),
+                        DataCell(Text(request['details'] ?? 'N/A')),
                       ],
                     );
                   }).toList(),

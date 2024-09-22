@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safe_watch/Screens/ProfileDatabase.dart';
+import 'package:safe_watch/globals.dart';
 import 'AuthorityRequestDatabase.dart'; // Import the SQLite helper class
 import 'package:intl/intl.dart'; // Import for date formatting
 
@@ -10,37 +12,77 @@ class Authority extends StatefulWidget {
 }
 
 class _MyAuthorityState extends State<Authority> {
+  // ignore: non_constant_identifier_names
+   String Nam='';
+  // ignore: non_constant_identifier_names
+   String Emai='';
+  // ignore: non_constant_identifier_names
+   String Ph='';
+  // ignore: non_constant_identifier_names
+   String Addr='';
   final _incidentDateController = TextEditingController();
   final _detailsController = TextEditingController();
-   String? _selectedAuthority; // To hold the selected authority
+  
+  // Controllers for profile fields
 
-  // List of authorities for the dropdown
+  
+  String? _selectedAuthority; // To hold the selected authority
   final List<String> _authorities = ['Police Department', 'Fire Department', 'Health Department', 'Municipality'];
 
   @override
+  void initState() {
+    super.initState();
+    _fetchProfileData(); // Fetch profile data on widget initialization
+  }
+
+  @override
   void dispose() {
-    // Dispose of the controllers when the widget is disposed
     _incidentDateController.dispose();
     _detailsController.dispose();
     super.dispose();
   }
 
+  // Fetch profile data from the database using the global email
+  Future<void> _fetchProfileData() async {
+    final profileData = await ProfileDatabaseHelper.instance.queryProfileByEmail(globalEmail);
+    
+    if (profileData.isNotEmpty) {
+      setState(() {
+        // Populate the profile fields
+        Nam = profileData.first['name'];
+        Emai = profileData.first['email'];
+        Ph = profileData.first['phonenumber'];
+        Addr = profileData.first['address'];
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile not found')),
+      );
+    }
+  }
+
   Future<void> _submitForm() async {
-    final String? authority = _selectedAuthority; // Get the selected authority
+    final String? authority = _selectedAuthority;
     final String incidentDate = _incidentDateController.text;
     final String details = _detailsController.text;
+    final String name = Nam;
+    final String email = Emai;
+    final String phonenumber = Ph;
+    final String address = Addr;
 
-    if (authority == null || incidentDate.isEmpty || details.isEmpty) {
-      // Show a simple error if any field is empty
+    if (authority == null || incidentDate.isEmpty || details.isEmpty || name.isEmpty || email.isEmpty || phonenumber.isEmpty || address.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill out all fields')),
       );
-
       return;
     }
 
     // Prepare data to be inserted
     Map<String, dynamic> requestData = {
+      'name': name,
+      'email': email,
+      'phonenumber': phonenumber,
+      'address': address,
       'authority': authority,
       'incident_date': incidentDate,
       'details': details,
@@ -48,13 +90,13 @@ class _MyAuthorityState extends State<Authority> {
 
     // Insert into the SQLite database
     await DatabaseHelper.instance.insertRequest(requestData);
-    // Show success message
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Request Submitted Successfully')),
     );
 
     // Clear the form fields
-        setState(() {
+    setState(() {
       _selectedAuthority = null;
     });
     _incidentDateController.clear();
@@ -73,35 +115,33 @@ class _MyAuthorityState extends State<Authority> {
 
     if (pickedDate != null) {
       setState(() {
-        // Format the selected date to dd/mm/yyyy
         _incidentDateController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, 
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
+              //const SizedBox(height: 16),
               _buildDropdownField(),
               const SizedBox(height: 16),
-              _buildDateField('DATE OF INCIDENT', controller: _incidentDateController), // Use date picker field
+              _buildDateField('DATE OF INCIDENT', controller: _incidentDateController),
               const SizedBox(height: 16),
               _buildTextField('DETAILS OF REQUEST', '', controller: _detailsController, maxLines: 3, fontSize: 16, fontWeight: FontWeight.w400),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF7A00), // Submit button color
-                  minimumSize: const Size(double.infinity, 64), // Button size
+                  backgroundColor: const Color(0xFFFF7A00),
+                  minimumSize: const Size(double.infinity, 64),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -115,17 +155,13 @@ class _MyAuthorityState extends State<Authority> {
     );
   }
 
-    Widget _buildDropdownField() {
+  Widget _buildDropdownField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'AUTHORITY',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
+          style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w400),
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
@@ -163,13 +199,13 @@ class _MyAuthorityState extends State<Authority> {
           label,
           style: TextStyle(
             color: Colors.black,
-            fontSize: fontSize, // Customize font size here
-            fontWeight: fontWeight, // Customize font weight here
+            fontSize: fontSize,
+            fontWeight: fontWeight,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: controller, // Attach the controller
+          controller: controller,
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
@@ -184,6 +220,7 @@ class _MyAuthorityState extends State<Authority> {
       ],
     );
   }
+
   Widget _buildDateField(String label, {required TextEditingController controller}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,8 +236,8 @@ class _MyAuthorityState extends State<Authority> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          readOnly: true, // Make the field read-only
-          onTap: () => _selectDate(context), // Open the date picker when tapped
+          readOnly: true,
+          onTap: () => _selectDate(context),
           decoration: InputDecoration(
             hintText: 'Select Date',
             filled: true,

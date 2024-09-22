@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'SubScreens/SubScreensRequest/AuthorityRequestList.dart';
+import 'AuthorityHomeScreen.dart';
 
 
 class Authorityloginscreen extends StatefulWidget {
@@ -139,7 +139,7 @@ class _LoginscreenState extends State<Authorityloginscreen> {
                       onPressed: (){
                         Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AuthorityRequestsScreen()),
+                      MaterialPageRoute(builder: (context) => const AuthorityHomeScreen()),
                     );
                     
                       },
