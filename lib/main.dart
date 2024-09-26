@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'Screens/MenuScreen.dart';
-//import 'Screens/ProfileScreen.dart';
-//import 'Screens/HomeScreen.dart';
+import 'package:safe_watch/globals.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Screens/LogInScreen.dart';
+import 'Screens/HomeScreen.dart'; // Assuming you have a HomeScreen
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +19,69 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Loginscreen(),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  // Check if the user is already logged in
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
+    String? password = prefs.getString('password');
+
+    if (email != null) {
+      globalEmail = email;
+    }
+
+    // Delay for 5 seconds before navigating
+    await Future.delayed(const Duration(seconds: 5));
+
+    // Navigate to the home screen if the user is logged in
+    if (email != null && password != null) {
+      // Here, you can perform validation against the database if needed
+      // For simplicity, we'll assume valid credentials if they are saved
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      // Otherwise, navigate to the login screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Loginscreen()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.black, // Set the background color to black
+      body: Center(
+        child: Text(
+          'Welcome to SafeWatch',
+          style: TextStyle(
+            color: Colors.white, // Set the text color to white
+            fontSize: 24, // Adjust the font size as needed
+            fontWeight: FontWeight.bold, // Make the text bold
+          ),
+        ),
+      ),
     );
   }
 }
@@ -32,135 +94,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // int _selectedIndex = 0;
-  // // Dummy Screens
-  // final List<Widget> _screens = [
-  //   const HomeScreen(),
-  //   const MenuScreen(),
-  //   const NotificationScreen(),
-  //   const ProfileScreen(),
-  // ];
-
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  // }
-
-  // void _showAlertDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Icon(
-  //           Icons.warning_amber_rounded,
-  //           size: 160,
-  //           color: Color.fromARGB(255, 192, 38, 27),
-  //         ),
-  //         content: const Text(
-  //           'Confirm Emergency!!',
-  //           textAlign: TextAlign.center,
-  //           style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-  //         ),
-  //         actions: <Widget>[
-  //           ElevatedButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: const Text('Cancel')),
-  //           ElevatedButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: const Text('OK')),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-   @override
-   Widget build(BuildContext context) {
-     return const Placeholder();
-  //     resizeToAvoidBottomInset: false,
-  //     body: _screens[_selectedIndex],
-  //     floatingActionButton: SizedBox(
-  //       height: 90, // Set the desired height
-  //       width: 90, // Set the desired width
-  //       child: FloatingActionButton(
-  //         backgroundColor: Colors.transparent,
-  //         shape: const CircleBorder(),
-  //         onPressed: _showAlertDialog, // Update to use the new function
-  //         elevation: 0,
-  //         child: Center(
-  //           child: Image.asset('assets/logo.png',)
-  //         ),
-  //       ),
-  //     ),
-  //     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-  //     bottomNavigationBar: BottomAppBar(
-  //       // shape: const CircularNotchedRectangle(),
-  //       notchMargin: 10,
-  //       height: 65,
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         mainAxisSize: MainAxisSize.max,
-  //         children: [
-  //           IconButton(
-  //             onPressed: () => _onItemTapped(0),
-  //             icon: Icon(
-  //               Icons.home_outlined,
-  //               size: 30,
-  //               color: _selectedIndex == 0
-  //                   ? const Color.fromARGB(255, 202, 113, 19)
-  //                   : Colors.grey,
-  //             ),
-  //           ),
-  //           IconButton(
-  //             onPressed: () => _onItemTapped(1),
-  //             icon: Icon(
-  //               Icons.menu,
-  //               size: 30,
-  //               color: _selectedIndex == 1
-  //                   ? const Color.fromARGB(255, 202, 113, 19)
-  //                   : Colors.grey,
-  //             ),
-  //           ),
-  //           const SizedBox(width: 100), // Space for the FAB
-  //           IconButton(
-  //             onPressed: () => _onItemTapped(2),
-  //             icon: Icon(
-  //               Icons.notifications_outlined,
-  //               size: 30,
-  //               color: _selectedIndex == 2
-  //                   ? const Color.fromARGB(255, 202, 113, 19)
-  //                   : Colors.grey,
-  //             ),
-  //           ),
-  //           IconButton(
-  //             onPressed: () => _onItemTapped(3),
-  //             icon: Icon(
-  //               Icons.person_2_outlined,
-  //               size: 30,
-  //               color: _selectedIndex == 3
-  //                   ? const Color.fromARGB(255, 202, 113, 19)
-  //                   : Colors.grey,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-   }
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
 }
-
-// class NotificationScreen extends StatelessWidget {
-//   const NotificationScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(
-//       child: Text('Notification Screen', style: TextStyle(fontSize: 24)),
-//     );
-//   }
-// }

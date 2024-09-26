@@ -10,129 +10,119 @@ class AllRequests extends StatefulWidget {
   State<AllRequests> createState() => _AllRequestsState();
 }
 
-class _AllRequestsState extends State<AllRequests> {
-  late Future<List<Map<String, dynamic>>> _allRequests;
+class _AllRequestsState extends State<AllRequests> with SingleTickerProviderStateMixin {
+  late Future<List<Map<String, dynamic>>> _publicRequests;
+  late Future<List<Map<String, dynamic>>> _emergencyRequests;
+  late TabController _tabController;
+  final Color _selectedColor = const Color(0xff1a73e8); // Blue color for selected tab
+  final Color _unselectedColor = Colors.black; // Text color for unselected tab
 
   @override
   void initState() {
     super.initState();
-    _allRequests = _getAllRequests();
+    _publicRequests = PublicDatabaseHelper.instance.getAllRequests();
+    _emergencyRequests = EmergencyDatabaseHelper.instance.getAllRequests();
+    _tabController = TabController(length: 2, vsync: this); // 2 tabs: public and emergency
   }
-Future<List<Map<String, dynamic>>> _getAllRequests() async {
-  // Fetch both public and emergency requests
-  final publicRequests = await PublicDatabaseHelper.instance.getAllRequests();
-  final emergencyRequests = await EmergencyDatabaseHelper.instance.getAllRequests();
-
-  // Combine both lists
-  final combinedRequests = [...publicRequests, ...emergencyRequests];
-
-  // Sort by date and time in descending order (newest first)
-  combinedRequests.sort((a, b) {
-    DateTime dateTimeA = _parseDateTime(a['date'], a['time']);
-    DateTime dateTimeB = _parseDateTime(b['date'], b['time']);
-
-    // Newest submissions should come first
-    return dateTimeB.compareTo(dateTimeA);
-  });
-
-  return combinedRequests;
-}
-
-// Helper function to parse date and time into a DateTime object
-DateTime _parseDateTime(String? date, String? time) {
-  try {
-    // If date is null, return a very old date to sort it to the bottom
-    if (date == null) return DateTime(0);
-
-    // Parse the date
-    DateTime parsedDate = DateTime.parse(date);
-
-    // If time is provided, combine date and time, otherwise default to start of the day (00:00:00)
-    if (time != null && time.isNotEmpty) {
-      final parsedTime = DateFormat.Hms().parse(time);  // Parse time in HH:mm:ss format
-      return DateTime(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
-    }
-
-    // If no time is provided, return the date with time set to 00:00:00
-    return DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
-  } catch (e) {
-    // Return a default date in case of parsing error
-    return DateTime(0);
-  }
-}
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _allRequests,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return const Center(child: Text('Error loading requests'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text(
-                'Total 0 requests',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[600],
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0, // Remove AppBar shadow
+        title: Container(
+          margin: const EdgeInsets.only(top: 8.0), // Add some margin for styling
+          child: TabBar(
+            controller: _tabController,
+            tabs: const [
+              // Emergency requests tab
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.warning, size: 18, color: Colors.red), // Emergency icon
+                    SizedBox(width: 8), // Space between icon and text
+                    Text('Emergency', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
                 ),
               ),
-              backgroundColor: Colors.white,
-              elevation: 0,
-            ),
-            body: const Center(child: Text('No requests available')),
-          );
-        } else {
-          int totalRequests = snapshot.data!.length;
-          return Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              title: Text(
-                'Total $totalRequests requests',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[600],
+              // Public requests tab
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.person, size: 18), // Public icon
+                    SizedBox(width: 8), // Space between icon and text
+                    Text('Public', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
                 ),
               ),
-              backgroundColor: Colors.white,
-              elevation: 0,
+            ],
+            labelColor: Colors.white, // Text color when selected
+            unselectedLabelColor: _unselectedColor, // Text color when unselected
+            labelPadding: const EdgeInsets.symmetric(horizontal: 34.0), // Increase padding between tabs
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(50.0), // Rounded corners for the indicator
+              color: _selectedColor, // Background color when selected
             ),
-            body: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: totalRequests,
-              itemBuilder: (context, index) {
-                var request = snapshot.data![index];
-                return _buildRequestCard(request);
-              },
-            ),
-          );
-        }
-      },
+            indicatorSize: TabBarIndicatorSize.tab, // Ensures the indicator matches the tab's width
+            //indicatorPadding: const EdgeInsets.symmetric(horizontal: 0), // Adjust padding to control width
+            indicatorWeight: 0, // Custom styling to remove default underline
+            dividerColor: Colors.transparent, // Remove any divider between tabs
+          ),
+        ),
+        centerTitle: true, // Center the TabBar title
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildRequestList(_emergencyRequests, isEmergency: true), // Tab 1: Emergency Requests
+          _buildRequestList(_publicRequests, isEmergency: false), // Tab 2: Public Requests
+        ],
+      ),
     );
   }
 
-  Widget _buildRequestCard(Map<String, dynamic> request) {
-    // Determine if the request is an emergency
-    bool isEmergency = request['details'] != null && request['details'].contains('emergency');
+  // Function to build the request list for each tab
+  // Function to build the request list for each tab
+Widget _buildRequestList(Future<List<Map<String, dynamic>>> futureRequests, {required bool isEmergency}) {
+  return FutureBuilder<List<Map<String, dynamic>>>(
+    future: futureRequests,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return const Center(child: Text('Error loading requests'));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return const Center(child: Text('No requests available'));
+      } else {
+        // Reverse the list to show the newest request first
+        var requests = snapshot.data!;
+        requests = requests.reversed.toList(); // Reverse the list
 
-    // Use 'Emergency' as the title for emergency requests, otherwise use the title from public requests
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: requests.length,
+          itemBuilder: (context, index) {
+            var request = requests[index];
+            return _buildRequestCard(request, isEmergency: isEmergency);
+          },
+        );
+      }
+    },
+  );
+}
+
+
+  // Function to build the individual request card
+  Widget _buildRequestCard(Map<String, dynamic> request, {required bool isEmergency}) {
     String title = isEmergency ? 'Emergency' : request['title'] ?? 'No Title';
-
-    // Date and time - time only for emergency requests
     String date = request['date'] ?? 'No Date';
     date = _formatDate(date);  // Format the date into dd-mm-yyyy
-    String time = isEmergency ? (request['time'] ?? 'No Time') : ''; // Time only for emergency requests
-
-    // Contact - for public requests use 'contact' field, for emergency use 'phonenumber'
+    String time = request['time'] ?? 'No Time';
     String contact = isEmergency ? request['phonenumber'] ?? 'No Contact' : request['contact'] ?? 'No Contact';
-
-    // Location - only show for emergency requests
     String currentLocation = isEmergency ? request['currentlocation'] ?? 'No Location' : '';
 
     return Card(
@@ -146,40 +136,29 @@ DateTime _parseDateTime(String? date, String? time) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display header with title, date, and emergency indicator if needed
             _buildCardHeader(title, date, isEmergency),
             const SizedBox(height: 8),
-
-            // Display details of the request (whether emergency or public request)
             Text(
               request['details'] ?? 'No details provided',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
-
-            // Display contact info for both emergency and public requests
             Text(
-              'Contact: $contact',  // Correctly showing public request or emergency contact
+              'Contact: $contact',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
-
-            // Show location only if it's an emergency request
             if (isEmergency) ...[
               const SizedBox(height: 8),
               Text(
-                'Location: $currentLocation', // Display location for emergencies
+                'Location: $currentLocation',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
-
-            // Show time only if it's an emergency request
-            if (isEmergency) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Time: $time', // Display time of emergency
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
-            ],
+            const SizedBox(height: 8),
+            Text(
+              'Time: $time',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
           ],
         ),
       ),
@@ -209,7 +188,7 @@ DateTime _parseDateTime(String? date, String? time) {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isEmergency ? Colors.red : Colors.black,  // Emergency title in red
+                color: isEmergency ? Colors.red : Colors.black,
               ),
             ),
             const SizedBox(height: 4),
@@ -219,8 +198,6 @@ DateTime _parseDateTime(String? date, String? time) {
             ),
           ],
         ),
-
-        // Show an emergency icon on the right if it's an emergency request
         if (isEmergency)
           const Icon(
             Icons.warning_amber_rounded,

@@ -33,6 +33,7 @@ class PublicDatabaseHelper {
         title TEXT NOT NULL,
         contact TEXT NOT NULL, 
         details TEXT NOT NULL,
+        time TEXT NOT NULL,
         date TEXT NOT NULL
       )
     ''');
@@ -58,6 +59,7 @@ class PublicDatabaseHelper {
         print('Title: ${request['title']}');
         print('Contact: ${request['contact']}'); 
         print('Details: ${request['details']}');
+        print('Time: ${request['time']}');
         print('Date: ${request['date']}');
         print('------------------------------');
       }

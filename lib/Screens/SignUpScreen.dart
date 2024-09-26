@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_watch/Screens/LogInScreen.dart';
 import 'SignupDatabase.dart'; // Import the SQLite helper class
-//import 'HomeScreen.dart'; // Import the Homescreen widget
 import 'package:crypto/crypto.dart'; // For hashing
 import 'dart:convert'; // For utf8.encode and base64.encode
 
@@ -18,6 +17,9 @@ class _MyWidgetState extends State<Signupscreen> {
   final _passwordController = TextEditingController();
   final _retypePasswordController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isRetypePasswordVisible = false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -27,16 +29,12 @@ class _MyWidgetState extends State<Signupscreen> {
     super.dispose();
   }
 
-  // String hashData(String input) {
-  //   var bytes = utf8.encode(input); // Convert input to bytes
-  //   var digest = sha256.convert(bytes); // Hash using SHA256
-  //   return base64.encode(digest.bytes); // Convert hash bytes to base64 string
-  // }
   String hashPassword(String password) {
-  var bytes = utf8.encode(password); // Encode the password as bytes
-  var digest = sha256.convert(bytes); // Hash the password using SHA256
-  return digest.toString(); // Convert the hash to a string
+    var bytes = utf8.encode(password); // Encode the password as bytes
+    var digest = sha256.convert(bytes); // Hash the password using SHA256
+    return digest.toString(); // Convert the hash to a string
   }
+
   bool isPasswordValid(String password) {
     return password.length >= 8 && password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
   }
@@ -67,37 +65,28 @@ class _MyWidgetState extends State<Signupscreen> {
       return;
     }
 
-    // Encrypt the name and password
-    //String encryptedName = hashPassword(name);
     String encryptedPassword = hashPassword(password);
 
-    // Prepare signup data
     Map<String, dynamic> signupData = {
       'name': name,
       'email': email,
       'password': encryptedPassword,
     };
 
-    // Insert into the SQLite database
     await SignupDatabaseHelper.instance.insertSignup(signupData);
 
-
-    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sign Up Successful!! Please Login with your credentials')),
     );
 
-    // Clear form fields
     _nameController.clear();
     _emailController.clear();
     _passwordController.clear();
     _retypePasswordController.clear();
 
-    // Print all signup records to the terminal
     await SignupDatabaseHelper.instance.printAllSignups();
     SignupDatabaseHelper.instance.printDatabasePath();
 
-    // Navigate to the HomeScreen after sign-up
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const Loginscreen()),
@@ -119,8 +108,7 @@ class _MyWidgetState extends State<Signupscreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Back button, title, and form fields here
-                           Container(
+                  Container(
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -133,7 +121,6 @@ class _MyWidgetState extends State<Signupscreen> {
                       },
                     ),
                   ),
-                  //const SizedBox(height: 20),
                   const Center(
                     child: Text(
                       'Sign Up',
@@ -160,6 +147,8 @@ class _MyWidgetState extends State<Signupscreen> {
                     hint: '',
                     obscureText: false,
                     controller: _nameController,
+                    toggleVisibility: null, // No toggle needed for name
+                    isVisible: true, // Always true for name
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -167,20 +156,34 @@ class _MyWidgetState extends State<Signupscreen> {
                     hint: '',
                     obscureText: false,
                     controller: _emailController,
+                    toggleVisibility: null, // No toggle needed for email
+                    isVisible: true, // Always true for email
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
                     label: 'PASSWORD',
                     hint: '',
-                    obscureText: true,
+                    obscureText: !_isPasswordVisible,
                     controller: _passwordController,
+                    toggleVisibility: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                    isVisible: _isPasswordVisible,
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
                     label: 'RE-TYPE PASSWORD',
                     hint: '',
-                    obscureText: true,
+                    obscureText: !_isRetypePasswordVisible,
                     controller: _retypePasswordController,
+                    toggleVisibility: () {
+                      setState(() {
+                        _isRetypePasswordVisible = !_isRetypePasswordVisible;
+                      });
+                    },
+                    isVisible: _isRetypePasswordVisible,
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
@@ -215,6 +218,8 @@ class _MyWidgetState extends State<Signupscreen> {
     required String hint,
     required TextEditingController controller,
     bool obscureText = false,
+    Function? toggleVisibility, // Optional for name and email
+    required bool isVisible,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,6 +245,13 @@ class _MyWidgetState extends State<Signupscreen> {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
             ),
+            suffixIcon: toggleVisibility != null ? IconButton(
+              icon: Icon(
+                isVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.black54,
+              ),
+              onPressed: () => toggleVisibility(),
+            ) : null, // Only add the toggle if it's not null
           ),
         ),
       ],

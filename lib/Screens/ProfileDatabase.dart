@@ -43,6 +43,18 @@ class ProfileDatabaseHelper {
     return await db.insert('profile_data', row);
   }
 
+  // Update profile data in the database
+Future<int> updateProfileData(Map<String, dynamic> row, String email) async {
+  final db = await instance.database;
+  return await db.update(
+    'profile_data',
+    row,
+    where: 'email = ?',
+    whereArgs: [email],
+  );
+}
+
+
   // Query user by email for login verification
   Future<List<Map<String, dynamic>>> queryProfileByEmail(String email) async {
     final db = await instance.database;

@@ -6,6 +6,8 @@ import 'SignUpScreen.dart';
 import 'package:crypto/crypto.dart'; // For hashing
 import 'dart:convert'; // For utf8.encode
 import 'AuthorityLogin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -22,10 +24,29 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _loadCredentials();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Load saved email and password from SharedPreferences
+  Future<void> _loadCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedEmail = prefs.getString('email');
+    // ignore: unused_local_variable
+    String? savedPassword = prefs.getString('password');
+
+    if (savedEmail != null) {
+      _emailController.text = savedEmail;
+      _isRememberMeChecked = true; // Check the box if email is loaded
+    }
   }
 
   // Method to hash password using SHA256
@@ -36,48 +57,60 @@ class _LoginscreenState extends State<Loginscreen> {
   }
 
   Future<void> _login() async {
-  final String email = _emailController.text.trim();
-  final String password = _passwordController.text.trim();
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+    globalEmail = email;
 
-  if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please enter your credentials to login')),
-    );
-    return;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your credentials to login')),
+      );
+      return;
+    }
+
+    // Hash the entered password
+    final String hashedPassword = hashPassword(password);
+
+    // Fetch user data from the database based on email
+    final db = SignupDatabaseHelper.instance;
+    final List<Map<String, dynamic>> result = await db.queryUserByEmail(email);
+
+    if (result.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not found')),
+      );
+      return;
+    }
+
+    // Check if the hashed password matches the stored password
+    final String storedPassword = result.first['password'];
+
+    if (storedPassword == hashedPassword) {
+      globalEmail = email;
+
+      // Save email and password if "Remember Me" is checked
+      if (_isRememberMeChecked) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', email);
+        await prefs.setString('password', hashedPassword); // Save the hashed password for security
+      } else {
+        // Clear saved credentials if not remembered
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('email');
+        await prefs.remove('password');
+      }
+
+      // Navigate to HomeScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Incorrect password')),
+      );
+    }
   }
-
-  // Hash the entered password
-  final String hashedPassword = hashPassword(password);
-  //print('Hashed Password (Login): $hashedPassword');
-
-  // Fetch user data from the database based on email
-  final db = SignupDatabaseHelper.instance;
-  final List<Map<String, dynamic>> result = await db.queryUserByEmail(email);
-
-  if (result.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User not found')),
-    );
-    return;
-  }
-
-  // Check if the hashed password matches the stored password
-  final String storedPassword = result.first['password'];
-  //print('Stored Password (Database): $storedPassword');
-
-  if (storedPassword == hashedPassword) {
-    globalEmail=email;
-    // Credentials are correct, navigate to HomeScreen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Incorrect password')),
-    );
-  }
-}
 
   @override
   Widget build(BuildContext context) {

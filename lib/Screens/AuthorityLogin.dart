@@ -160,30 +160,6 @@ class _LoginscreenState extends State<Authorityloginscreen> {
                       ),
                     ),
                   ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account?",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                          },
-                          child: const Text(
-                            'SIGN UP',
-                            style: TextStyle(
-                              color: Color(0xFFFF7A00),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

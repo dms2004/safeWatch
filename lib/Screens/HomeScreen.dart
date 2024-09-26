@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart'; // Import Geolocator package
 import 'package:safe_watch/globals.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'MenuScreen.dart';
 import 'ProfileScreen.dart';
 import 'EmergencyDatabase.dart'; // Import your EmergencyDatabaseHelper
 import 'ProfileDatabase.dart'; // Import your ProfileDatabaseHelper
+import 'LoginScreen.dart'; // Import your LoginScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,19 +36,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Handle the case when the user denies the permission
-        // You might want to show a message or a dialog here
         print('Location permission denied');
       } else if (permission == LocationPermission.deniedForever) {
-        // Handle the case when the user denies the permission permanently
-        // You might want to direct them to app settings
         print('Location permission denied forever');
       } else {
-        // Permission granted
         print('Location permission granted');
       }
     } else {
-      // Permission already granted
       print('Location permission already granted');
     }
   }
@@ -135,9 +131,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Method to handle sign out
+  Future<void> _signOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
+    // Clear shared preferences
+    await prefs.remove('email'); // Remove email
+    await prefs.remove('rememberMe'); // Remove remember me flag, if it exists
+
+    // Clear user data or perform any necessary clean-up here
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Loginscreen()), // Navigate to the login screen
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _selectedIndex == 0 // Show AppBar only on HomeScreen
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              title: const Text('Safe Watch'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: _signOut, // Call the sign-out method
+                ),
+              ],
+            )
+          : null, // No AppBar for other screens
       resizeToAvoidBottomInset: false,
       body: _screens[_selectedIndex],
       floatingActionButton: SizedBox(

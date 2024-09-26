@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'PublicRequestDatabase.dart';
-import 'package:intl/intl.dart'; // Add this package to format the date
+import 'package:intl/intl.dart'; // Add this package to format the date and time
 
 class Public extends StatefulWidget {
   const Public({super.key});
@@ -28,6 +28,7 @@ class _MyPublicState extends State<Public> {
     final String contact = _contactController.text; // Get contact number
     final String details = _detailsController.text;
     final String date = DateFormat('dd-MM-yyyy').format(DateTime.now()); // Automatically get the current date
+    final String time = DateFormat('hh:mm a').format(DateTime.now()); // Get the current time in 12-hour format with AM/PM
 
     if (title.isEmpty || contact.isEmpty || details.isEmpty) {
       // Show a simple error if any field is empty
@@ -43,6 +44,7 @@ class _MyPublicState extends State<Public> {
       'contact': contact, // Add contact number to the request data
       'details': details,
       'date': date, // Add the current date
+      'time': time, // Add the current time in 12-hour format with AM/PM
     };
 
     // Insert into the SQLite database

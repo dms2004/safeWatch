@@ -79,35 +79,44 @@ Future<void> _loadUserData() async {
   }
 
   Future<void> _saveChanges() async {
-    // Create a map to store the profile data
-    final profileData = {
-      'name': fullName,
-      'email': email,
-      'phonenumber': phoneNumber,
-      'address': address,
-    };
+  // Create a map to store the profile data
+  final profileData = {
+    'name': fullName,
+    'email': email,
+    'phonenumber': phoneNumber,
+    'address': address,
+  };
 
-    try {
-      // Insert the profile data into the database
+  try {
+    // Check if profile already exists in the database
+    final List<Map<String, dynamic>> existingProfile = await _profileDBHelper.queryProfileByEmail(globalEmail);
+
+    if (existingProfile.isNotEmpty) {
+      // Update existing profile
+      await _profileDBHelper.updateProfileData(profileData, globalEmail);
+    } else {
+      // Insert new profile data if it doesn't exist
       await _profileDBHelper.insertprofiledata(profileData);
-
-      setState(() {
-        isEditing = false; // Exit edit mode after saving
-      });
-
-      // Optionally, you can display a confirmation message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile saved successfully!')),
-      );
-      await ProfileDatabaseHelper.instance.printAllprofile();
-    } 
-    catch (e) {
-      // Handle any errors during insertion
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving profile: $e')),
-      );
     }
+
+    setState(() {
+      isEditing = false; // Exit edit mode after saving
+    });
+
+    // Display a confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Profile saved successfully!')),
+    );
+    await ProfileDatabaseHelper.instance.printAllprofile();
+  } 
+  catch (e) {
+    // Handle any errors during insertion or update
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error saving profile: $e')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
