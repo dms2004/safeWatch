@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     // Delay for 5 seconds before navigating
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 2));
 
     // Navigate to the home screen if the user is logged in
     if (email != null && password != null) {
