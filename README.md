@@ -1,16 +1,33 @@
-# safe_watch
+# safeWatch
 
-A new Flutter project.
+SafeWatch is a Flutter-based mobile application designed to enhance workplace safety, with a focus on women's safety and emergency response features. It provides real-time alerts, location tracking, and an emergency SOS system.
 
-## Getting Started
+## Features
+- **Emergency SOS Button**: Instantly notifies authorities and contacts with location details.
+- **Real-time Rescue Tracking**: Allows users to track rescue teams in real-time.
+- **Public Safety Reports**: Enables users to report and view safety concerns in their area.
+- **Notifications from Authorities**: Receives safety alerts and guidelines from official sources.
+- **Donations & Support**: Facilitates contributions to support safety initiatives.
 
-This project is a starting point for a Flutter application.
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/SafeWatch.git
+   cd SafeWatch
+   ```
+2. Install Flutter if not already installed:
+   ```bash
+   flutter doctor
+   ```
+3. Get dependencies:
+   ```bash
+   flutter pub get
+   ```
 
-A few resources to get you started if this is your first Flutter project:
+## Usage
+To run the SafeWatch application:
+```bash
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
