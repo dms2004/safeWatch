@@ -1,6 +1,6 @@
 # safeWatch
 
-SafeWatch is a Flutter-based mobile application designed to enhance workplace safety, with a focus on women's safety and emergency response features. It provides real-time alerts, location tracking, and an emergency SOS system.
+safeWatch is a Flutter-based mobile application designed to enhance workplace safety, with a focus on women's safety and emergency response features. It provides real-time alerts, location tracking, and an emergency SOS system.
 
 ## Features
 - **Emergency SOS Button**: Instantly notifies authorities and contacts with location details.
